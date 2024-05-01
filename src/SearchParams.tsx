@@ -5,23 +5,24 @@ import AdoptedPetContext from "./AdoptedPetContext";
 import Results from "./Results";
 import fetchPets from "./fetchPets";
 import Pagination from "./Pagination";
+import { Animal } from "./APIResponseTypes";
 
-const ANIMALS = ["bird", "cat", "dog", "rabbit", "reptile"];
+const ANIMALS: Animal[] = ["bird", "cat", "dog", "rabbit", "reptile"];
 
 const SearchParams = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [requestParams, setRequestParams] = useState({
-    animal: "",
+    animal: "" as Animal,
     location: "",
     breed: "",
     page: 0,
   });
-  const [animal, setAnimal] = useState("");
+  const [animal, setAnimal] = useState("" as Animal);
   const [breeds] = useBreedList(animal);
   const [adoptedPet] = useContext(AdoptedPetContext);
   const petsResults = useQuery(["pets", requestParams], fetchPets);
 
-  const handlePagination = (pageNumber) => {
+  const handlePagination: (a: number) => void = (pageNumber: number) => {
     setCurrentPage(pageNumber);
     setRequestParams((obj) => {
       return {
@@ -32,7 +33,7 @@ const SearchParams = () => {
   };
 
   if (petsResults.isError) {
-    return <h1>{petsResults.error.message} </h1>;
+    return <h1>{petsResults.status} </h1>;
   }
 
   if (petsResults.isLoading || petsResults.isFetching) {
@@ -51,11 +52,12 @@ const SearchParams = () => {
         className="mb-10 flex flex-col items-center justify-center rounded-lg bg-gray-200 p-10 shadow-lg"
         onSubmit={(e) => {
           e.preventDefault();
-          const formData = new FormData(e.target);
+          const formData = new FormData(e.currentTarget);
           const obj = {
-            animal: formData.get("animal") ?? "",
-            location: formData.get("location") ?? "",
-            breed: formData.get("breed") ?? "",
+            animal: (formData.get("animal") as Animal) ?? ("" as Animal),
+            location: formData.get("location")?.toString() ?? "",
+            breed: formData.get("breed")?.toString() ?? "",
+            page: 0,
           };
 
           setRequestParams(obj);
@@ -83,7 +85,7 @@ const SearchParams = () => {
             name="animal"
             id="animal"
             onChange={(e) => {
-              setAnimal(e.target.value);
+              setAnimal(e.target.value as Animal);
             }}
           >
             <option />

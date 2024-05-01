@@ -1,6 +1,16 @@
-const Pagination = ({ elementsPerPage, quantity, handlePage, currentPage }) => {
-  console.log("check pagination current page");
-  console.log(currentPage);
+interface IProps {
+  elementsPerPage: number;
+  quantity: number;
+  handlePage: (a: number) => void;
+  currentPage: number;
+}
+
+const Pagination = ({
+  elementsPerPage,
+  quantity,
+  handlePage,
+  currentPage,
+}: IProps) => {
   const paginationNumbers = [];
 
   for (let index = 0; index < Math.ceil(quantity / elementsPerPage); index++) {

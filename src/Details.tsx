@@ -8,12 +8,18 @@ import ErrorBoundary from "./ErrorBoundary";
 import Modal from "./Modal";
 
 const Details = () => {
+  const { id } = useParams();
+  if (!id) {
+    throw new Error("no id provided to details");
+  }
+
   const [showModal, setShowModal] = useState(false);
 
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setAdoptedPet] = useContext(AdoptedPetContext);
+
   const navigate = useNavigate();
-  const { id } = useParams();
+
   const results = useQuery(["details", id], fetchPet);
 
   if (results.isError) {
@@ -28,7 +34,11 @@ const Details = () => {
     );
   }
 
-  const pet = results.data.pets[0];
+  const pet = results?.data?.pets[0];
+  if (!pet) {
+    throw new Error("pet not found");
+  }
+
   return (
     <div className="my-0 mx-auto w-11/12 rounded-lg bg-gray-200 p-4 shadow-lg">
       <Carousel images={pet.images} />
@@ -74,10 +84,10 @@ const Details = () => {
   );
 };
 
-export default function DetailsErrorBoundary(props) {
+export default function DetailsErrorBoundary() {
   return (
     <ErrorBoundary>
-      <Details {...props} />
+      <Details />
     </ErrorBoundary>
   );
 }
