@@ -1,28 +1,25 @@
 import Pet from "./Pet";
 
-
 const Results = ({ pets }) => {
-    return (
-        <div className="search">
-            {
-                !pets.length ? (
-                    <h1>No Pets found</h1>
-                ) : (
-                    pets.map((pet => (
-                        < Pet
-                            name={pet.name}
-                            key={pet.id}
-                            animal={pet.animal}
-                            images={pet.images}
-                            breed={pet.breed}
-                            location={`${pet.city}, ${pet.state}`}
-                            id={pet.id}
-                        />
-                    )))
-                )
-            }
-        </div>
-    );
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {!pets.length ? (
+        <h1>No Pets found</h1>
+      ) : (
+        pets.map((pet) => (
+          <Pet
+            name={pet.name}
+            key={pet.id}
+            animal={pet.animal}
+            images={pet.images}
+            breed={pet.breed}
+            location={`${pet.city}, ${pet.state}`}
+            id={pet.id}
+          />
+        ))
+      )}
+    </div>
+  );
 };
 
 export default Results;

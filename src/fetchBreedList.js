@@ -1,18 +1,19 @@
 const fetchBreedList = async ({ queryKey }) => {
-    const animal = queryKey[1];
+  const animal = queryKey[1];
 
-    if (!animal) {
-        return [];
-    }
+  if (!animal) {
+    return [];
+  }
 
-    const apiRes = await fetch(`http://pets-v2.dev-apis.com/breeds?animal=${animal}`);
+  const apiRes = await fetch(
+    `http://pets-v2.dev-apis.com/breeds?animal=${animal}`,
+  );
 
-    if (!apiRes.ok) {
-        throw new Error("Error fetching the animal");
-    }
+  if (!apiRes.ok) {
+    throw new Error("Error fetching the animal");
+  }
 
-    return apiRes.json();
-
+  return apiRes.json();
 };
 
 export default fetchBreedList;
