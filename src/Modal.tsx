@@ -21,7 +21,7 @@ const Modal = ({ children }: { children: ReactElement }) => {
     }
     modalRoot.appendChild(elRef.current);
     modalRoot.className =
-      "fixed left-0 right-0 bottom-0 top-0 z-10 flex items-center justify-center bg-white empty:hidden bg-transparent";
+      "fixed left-0 right-0 bottom-0 top-0 z-10 flex items-center justify-center empty:hidden bg-transparent";
     return () => {
       if (elRef.current) {
         modalRoot.removeChild(elRef.current);

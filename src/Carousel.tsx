@@ -32,11 +32,11 @@ class Carousel extends Component<IProps> {
     return (
       <div className="mt-2 flex h-[400px] items-center justify-around ">
         <img
-          className="max-h-[400px] max-w-[45%]"
+          className="max-h-[400px] max-w-[90%] sm:max-w-[45%]"
           src={images[active]}
           alt="animal hero"
         />
-        <div className="w-1/2">
+        <div className="hidden sm:block sm:w-1/2">
           {images.map((photo, index) => (
             // eslint-disable-next-line
             <img

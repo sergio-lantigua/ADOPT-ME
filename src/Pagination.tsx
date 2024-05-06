@@ -11,17 +11,19 @@ const Pagination = ({
   handlePage,
   currentPage,
 }: IProps) => {
-  const paginationNumbers = [];
+  const paginationNumbers: number[] = [];
 
   for (let index = 0; index < Math.ceil(quantity / elementsPerPage); index++) {
     paginationNumbers.push(index);
   }
 
-  return (
-    <div className="pagination">
+  const showPagination = paginationNumbers.length > 2;
+
+  return showPagination ? (
+    <div className="mb-3 flex items-center justify-center">
       {paginationNumbers.map((pageNumber) => (
         <button
-          className={currentPage === pageNumber ? "active" : ""}
+          className={`${currentPage !== pageNumber ? "bg-gray-200" : "bg-gray-600"} mr-1 rounded-none p-2`}
           key={pageNumber}
           onClick={() => handlePage(pageNumber)}
         >
@@ -30,7 +32,7 @@ const Pagination = ({
         </button>
       ))}
     </div>
-  );
+  ) : null;
 };
 
 export default Pagination;

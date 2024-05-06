@@ -4,23 +4,32 @@ import useBreedList from "./useBreedList";
 import AdoptedPetContext from "./AdoptedPetContext";
 import Results from "./Results";
 import fetchPets from "./fetchPets";
-import Pagination from "./Pagination";
 import { Animal } from "./APIResponseTypes";
+import Loading from "./Loading";
+import Pagination from "./Pagination";
 
 const ANIMALS: Animal[] = ["bird", "cat", "dog", "rabbit", "reptile"];
 
 const SearchParams = () => {
-  const [currentPage, setCurrentPage] = useState(0);
   const [requestParams, setRequestParams] = useState({
     animal: "" as Animal,
     location: "",
     breed: "",
     page: 0,
   });
+  const [currentPage, setCurrentPage] = useState(0);
   const [animal, setAnimal] = useState("" as Animal);
   const [breeds] = useBreedList(animal);
   const [adoptedPet] = useContext(AdoptedPetContext);
   const petsResults = useQuery(["pets", requestParams], fetchPets);
+
+  const petsRequestData = petsResults?.data;
+
+  let numerOfResults = 0;
+
+  if (petsRequestData) {
+    numerOfResults = petsRequestData.numberOfResults;
+  }
 
   const handlePagination: (a: number) => void = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -31,20 +40,6 @@ const SearchParams = () => {
       };
     });
   };
-
-  if (petsResults.isError) {
-    return <h1>{petsResults.status} </h1>;
-  }
-
-  if (petsResults.isLoading || petsResults.isFetching) {
-    return (
-      <div className="loading-pane">
-        <h2 className="loader">🌀</h2>
-      </div>
-    );
-  }
-
-  const pets = petsResults.data.pets ?? [];
 
   return (
     <div className="my-0 mx-auto w-11/12">
@@ -116,17 +111,22 @@ const SearchParams = () => {
           Submit
         </button>
       </form>
-      {
-        <>
-          <Results pets={pets} />
-          <Pagination
-            elementsPerPage={10}
-            quantity={63}
-            handlePage={handlePagination}
-            currentPage={currentPage}
-          />
-        </>
-      }
+
+      <Pagination
+        elementsPerPage={10}
+        quantity={numerOfResults}
+        handlePage={handlePagination}
+        currentPage={currentPage}
+      />
+      {petsResults.isError ? (
+        <h1 className="text-center">
+          An error occur while proccesing the request, try again later.
+        </h1>
+      ) : petsResults.isLoading || petsResults.isFetching ? (
+        <Loading />
+      ) : null}
+
+      {petsRequestData && <Results pets={petsRequestData.pets} />}
     </div>
   );
 };
