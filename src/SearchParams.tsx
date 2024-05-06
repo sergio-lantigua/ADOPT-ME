@@ -4,24 +4,34 @@ import useBreedList from "./useBreedList";
 import AdoptedPetContext from "./AdoptedPetContext";
 import Results from "./Results";
 import fetchPets from "./fetchPets";
+import { Animal } from "./APIResponseTypes";
+import Loading from "./Loading";
 import Pagination from "./Pagination";
 
-const ANIMALS = ["bird", "cat", "dog", "rabbit", "reptile"];
+const ANIMALS: Animal[] = ["bird", "cat", "dog", "rabbit", "reptile"];
 
 const SearchParams = () => {
-  const [currentPage, setCurrentPage] = useState(0);
   const [requestParams, setRequestParams] = useState({
-    animal: "",
+    animal: "" as Animal,
     location: "",
     breed: "",
     page: 0,
   });
-  const [animal, setAnimal] = useState("");
+  const [currentPage, setCurrentPage] = useState(0);
+  const [animal, setAnimal] = useState("" as Animal);
   const [breeds] = useBreedList(animal);
   const [adoptedPet] = useContext(AdoptedPetContext);
   const petsResults = useQuery(["pets", requestParams], fetchPets);
 
-  const handlePagination = (pageNumber) => {
+  const petsRequestData = petsResults?.data;
+
+  let numerOfResults = 0;
+
+  if (petsRequestData) {
+    numerOfResults = petsRequestData.numberOfResults;
+  }
+
+  const handlePagination: (a: number) => void = (pageNumber: number) => {
     setCurrentPage(pageNumber);
     setRequestParams((obj) => {
       return {
@@ -31,31 +41,18 @@ const SearchParams = () => {
     });
   };
 
-  if (petsResults.isError) {
-    return <h1>{petsResults.error.message} </h1>;
-  }
-
-  if (petsResults.isLoading || petsResults.isFetching) {
-    return (
-      <div className="loading-pane">
-        <h2 className="loader">🌀</h2>
-      </div>
-    );
-  }
-
-  const pets = petsResults.data.pets ?? [];
-
   return (
     <div className="my-0 mx-auto w-11/12">
       <form
         className="mb-10 flex flex-col items-center justify-center rounded-lg bg-gray-200 p-10 shadow-lg"
         onSubmit={(e) => {
           e.preventDefault();
-          const formData = new FormData(e.target);
+          const formData = new FormData(e.currentTarget);
           const obj = {
-            animal: formData.get("animal") ?? "",
-            location: formData.get("location") ?? "",
-            breed: formData.get("breed") ?? "",
+            animal: (formData.get("animal") as Animal) ?? ("" as Animal),
+            location: formData.get("location")?.toString() ?? "",
+            breed: formData.get("breed")?.toString() ?? "",
+            page: 0,
           };
 
           setRequestParams(obj);
@@ -83,7 +80,7 @@ const SearchParams = () => {
             name="animal"
             id="animal"
             onChange={(e) => {
-              setAnimal(e.target.value);
+              setAnimal(e.target.value as Animal);
             }}
           >
             <option />
@@ -114,17 +111,22 @@ const SearchParams = () => {
           Submit
         </button>
       </form>
-      {
-        <>
-          <Results pets={pets} />
-          <Pagination
-            elementsPerPage={10}
-            quantity={63}
-            handlePage={handlePagination}
-            currentPage={currentPage}
-          />
-        </>
-      }
+
+      <Pagination
+        elementsPerPage={10}
+        quantity={numerOfResults}
+        handlePage={handlePagination}
+        currentPage={currentPage}
+      />
+      {petsResults.isError ? (
+        <h1 className="text-center">
+          An error occur while proccesing the request, try again later.
+        </h1>
+      ) : petsResults.isLoading || petsResults.isFetching ? (
+        <Loading />
+      ) : null}
+
+      {petsRequestData && <Results pets={petsRequestData.pets} />}
     </div>
   );
 };

@@ -1,6 +1,10 @@
-import { Component } from "react";
+import { Component, MouseEvent } from "react";
 
-class Carousel extends Component {
+interface IProps {
+  images: string[];
+}
+
+class Carousel extends Component<IProps> {
   state = {
     active: 0,
   };
@@ -9,10 +13,16 @@ class Carousel extends Component {
     images: ["http://pets-images.dev-apis.com/pets/none.jpg"],
   };
 
-  handleIndexClick = (e) => {
-    this.setState({
-      active: parseInt(e.target.dataset.index),
-    });
+  handleIndexClick = (e: MouseEvent<HTMLElement>) => {
+    if (!(e.target instanceof HTMLElement)) {
+      return;
+    }
+
+    if (e.target.dataset.index) {
+      this.setState({
+        active: parseInt(e.target.dataset.index),
+      });
+    }
   };
 
   render() {
@@ -22,11 +32,11 @@ class Carousel extends Component {
     return (
       <div className="mt-2 flex h-[400px] items-center justify-around ">
         <img
-          className="max-h-[400px] max-w-[45%]"
+          className="max-h-[400px] max-w-[90%] sm:max-w-[45%]"
           src={images[active]}
           alt="animal hero"
         />
-        <div className="w-1/2">
+        <div className="hidden sm:block sm:w-1/2">
           {images.map((photo, index) => (
             // eslint-disable-next-line
             <img
