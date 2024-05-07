@@ -1,48 +1,46 @@
-import { useState, useContext } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useSearchQuery } from "./petApiService";
+import { all } from "./searchParamsSlice";
+import { RootState } from "./store";
 import useBreedList from "./useBreedList";
-import AdoptedPetContext from "./AdoptedPetContext";
 import Results from "./Results";
-import fetchPets from "./fetchPets";
-import { Animal } from "./APIResponseTypes";
+import { Animal, ISearchParams } from "./APIResponseTypes";
 import Loading from "./Loading";
 import Pagination from "./Pagination";
 
 const ANIMALS: Animal[] = ["bird", "cat", "dog", "rabbit", "reptile"];
 
 const SearchParams = () => {
-  const [requestParams, setRequestParams] = useState({
-    animal: "" as Animal,
-    location: "",
-    breed: "",
-    page: 0,
-  });
   const [currentPage, setCurrentPage] = useState(0);
   const [animal, setAnimal] = useState("" as Animal);
   const [breeds] = useBreedList(animal);
-  const [adoptedPet] = useContext(AdoptedPetContext);
-  const petsResults = useQuery(["pets", requestParams], fetchPets);
 
-  const petsRequestData = petsResults?.data;
+  const adoptedPet = useSelector((state: RootState) => state.adoptedPet.value);
+  const requestParams = useSelector(
+    (state: RootState) => state.searchParamsSlice.value,
+  );
+  const {
+    data: petsRequestData,
+    isLoading,
+    isFetching,
+    isError,
+  } = useSearchQuery(requestParams);
+  const dispatch = useDispatch();
 
-  let numerOfResults = 0;
-
-  if (petsRequestData) {
-    numerOfResults = petsRequestData.numberOfResults;
-  }
-
+  const numerOfResults = petsRequestData?.numberOfResults ?? 0;
+  const pets = petsRequestData?.pets ?? [];
   const handlePagination: (a: number) => void = (pageNumber: number) => {
     setCurrentPage(pageNumber);
-    setRequestParams((obj) => {
-      return {
-        ...obj,
-        page: pageNumber,
-      };
-    });
+    const obj = {
+      ...requestParams,
+      page: pageNumber,
+    } as ISearchParams;
+    dispatch(all(obj));
   };
 
   return (
-    <div className="my-0 mx-auto w-11/12">
+    <div className="mx-auto my-0 w-11/12">
       <form
         className="mb-10 flex flex-col items-center justify-center rounded-lg bg-gray-200 p-10 shadow-lg"
         onSubmit={(e) => {
@@ -55,11 +53,11 @@ const SearchParams = () => {
             page: 0,
           };
 
-          setRequestParams(obj);
+          dispatch(all(obj));
         }}
       >
         {adoptedPet ? (
-          <div className="clip-path float-left mt-0 mr-5 mb-0 ml-3 h-40 w-40">
+          <div className="clip-path float-left mb-0 ml-3 mr-5 mt-0 h-40 w-40">
             <img src={adoptedPet.images[0]} alt={adoptedPet.name} />
           </div>
         ) : null}
@@ -118,15 +116,15 @@ const SearchParams = () => {
         handlePage={handlePagination}
         currentPage={currentPage}
       />
-      {petsResults.isError ? (
+      {isError ? (
         <h1 className="text-center">
           An error occur while proccesing the request, try again later.
         </h1>
-      ) : petsResults.isLoading || petsResults.isFetching ? (
+      ) : isLoading || isFetching ? (
         <Loading />
-      ) : null}
-
-      {petsRequestData && <Results pets={petsRequestData.pets} />}
+      ) : (
+        <Results pets={pets} />
+      )}
     </div>
   );
 };
