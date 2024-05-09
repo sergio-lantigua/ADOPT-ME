@@ -1,11 +1,12 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import AdoptedPetContext from "./AdoptedPetContext";
-import fetchPet from "./fetchPet";
+import { useDispatch } from "react-redux";
+import { useGetPetQuery } from "./petApiService";
+import { adopt } from "./adoptedPetSlice";
 import Carousel from "./Carousel";
 import ErrorBoundary from "./ErrorBoundary";
 import Modal from "./Modal";
+import Loading from "./Loading";
 
 const Details = () => {
   const { id } = useParams();
@@ -14,27 +15,26 @@ const Details = () => {
   }
 
   const [showModal, setShowModal] = useState(false);
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, setAdoptedPet] = useContext(AdoptedPetContext);
+  const {
+    isLoading,
+    data: pet,
+    isError,
+    status,
+    isFetching,
+  } = useGetPetQuery(+id);
 
   const navigate = useNavigate();
 
-  const results = useQuery(["details", id], fetchPet);
+  const dispatch = useDispatch();
 
-  if (results.isError) {
-    return <h1>{results.status} </h1>;
+  if (isError) {
+    return <h1>{status} </h1>;
   }
 
-  if (results.isLoading || results.isFetching) {
-    return (
-      <div className="loading-pane">
-        <h2 className="loader">🌀</h2>
-      </div>
-    );
+  if (isLoading || isFetching) {
+    return <Loading />;
   }
 
-  const pet = results?.data?.pets[0];
   if (!pet) {
     throw new Error("pet not found");
   }
@@ -68,7 +68,7 @@ const Details = () => {
                 <button
                   className="mr-4 inline-block rounded border-none bg-orange-500 px-6 py-2 text-white hover:opacity-50"
                   onClick={() => {
-                    setAdoptedPet(pet);
+                    dispatch(adopt(pet));
                     navigate("/");
                   }}
                 >

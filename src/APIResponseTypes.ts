@@ -1,5 +1,12 @@
 type Animal = "dog" | "cat" | "bird" | "reptile" | "rabbit";
 
+interface ISearchParams {
+  location: string;
+  breed: string;
+  animal: Animal;
+  page: number;
+}
+
 interface IPet {
   id: number;
   name: string;
@@ -24,4 +31,4 @@ interface IBreedListAPIResponse {
   breeds: string[];
 }
 
-export { Animal, IPet, IPetAPIResponse, IBreedListAPIResponse };
+export { Animal, IPet, IPetAPIResponse, IBreedListAPIResponse, ISearchParams };
