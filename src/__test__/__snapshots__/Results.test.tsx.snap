@@ -1,0 +1,11 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renders correctly with no pets 1`] = `
+<DocumentFragment>
+  <h1
+    class="text-center text-[80px]"
+  >
+    No Pets found
+  </h1>
+</DocumentFragment>
+`;
